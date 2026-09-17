@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazar TodoCode</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <h1>🧺 Bazar TodoCode</h1>
+        <p>Front de práctica — consume la API en <code id="api-url-label"></code></p>
+    </header>
+
+    <main>
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="products">Productos</button>
+            <button class="tab-btn" data-tab="clients">Clientes</button>
+            <button class="tab-btn" data-tab="sales">Ventas</button>
+            <button class="tab-btn" data-tab="reports">Reportes</button>
+        </nav>
+
+        <!-- ==================== PRODUCTOS ==================== -->
+        <div id="tab-products" class="tab-panel">
+            <section>
+                <h2>Agregar producto</h2>
+                <form id="create-product-form">
+                    <div class="form-grid">
+                        <label>Nombre <input type="text" name="name" required></label>
+                        <label>Marca <input type="text" name="brand" required></label>
+                        <label>Precio <input type="number" name="price" min="0" step="0.01" required></label>
+                        <label>Stock <input type="number" name="stock" min="0" step="0.01" required></label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Crear producto</button>
+                        <span id="create-product-feedback" class="feedback"></span>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <h2>Inventario</h2>
+                <label class="toggle-row">
+                    <input type="checkbox" id="low-stock-toggle">
+                    Mostrar solo productos con bajo stock
+                </label>
+                <div class="table-wrapper">
+                    <table id="products-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th><th>Nombre</th><th>Marca</th><th>Precio</th><th>Stock</th><th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <p id="products-empty-state" hidden>Todavía no hay productos cargados.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== CLIENTES ==================== -->
+        <div id="tab-clients" class="tab-panel" hidden>
+            <section>
+                <h2>Agregar cliente</h2>
+                <form id="create-client-form">
+                    <div class="form-grid">
+                        <label>Nombre <input type="text" name="name" required></label>
+                        <label>Apellido <input type="text" name="lastName" required></label>
+                        <label>DNI <input type="text" name="dni" required></label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Crear cliente</button>
+                        <span id="create-client-feedback" class="feedback"></span>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <h2>Clientes</h2>
+                <div class="table-wrapper">
+                    <table id="clients-table">
+                        <thead>
+                            <tr><th>ID</th><th>Nombre</th><th>Apellido</th><th>DNI</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <p id="clients-empty-state" hidden>Todavía no hay clientes cargados.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== VENTAS ==================== -->
+        <div id="tab-sales" class="tab-panel" hidden>
+            <section>
+                <h2>Registrar venta</h2>
+                <form id="create-sale-form">
+                    <label>Cliente
+                        <select id="sale-client-select" required></select>
+                    </label>
+
+                    <h3>Productos de la venta</h3>
+                    <div id="sale-items-container"></div>
+                    <button type="button" id="add-sale-item" class="btn btn-secondary btn-small">+ Agregar producto</button>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Registrar venta</button>
+                        <span id="create-sale-feedback" class="feedback"></span>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <h2>Ventas realizadas</h2>
+                <div class="table-wrapper">
+                    <table id="sales-table">
+                        <thead>
+                            <tr><th>Código</th><th>Fecha</th><th>Total</th><th>Productos</th><th>Cliente</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <p id="sales-empty-state" hidden>Todavía no hay ventas registradas.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== REPORTES ==================== -->
+        <div id="tab-reports" class="tab-panel" hidden>
+            <section>
+                <h2>Reportes</h2>
+
+                <div class="report-block">
+                    <label>Monto total vendido en una fecha
+                        <input type="date" id="report-date">
+                    </label>
+                    <button type="button" id="query-amount-by-date" class="btn btn-primary btn-small">Consultar</button>
+                    <p id="amount-by-date-output" class="report-output"></p>
+                </div>
+
+                <div class="report-block">
+                    <p>Venta con el monto más alto registrada</p>
+                    <button type="button" id="query-highest-sale" class="btn btn-primary btn-small">Consultar</button>
+                    <p id="highest-sale-output" class="report-output"></p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        Proyecto de práctica — Roadmap Java TodoCode
+    </footer>
+
+    <!-- ==================== MODALES ==================== -->
+
+    <dialog id="edit-product-modal">
+        <h2>Editar producto</h2>
+        <form id="edit-product-form">
+            <input type="hidden" name="id">
+            <div class="form-grid">
+                <label>Nombre <input type="text" name="name"></label>
+                <label>Marca <input type="text" name="brand"></label>
+                <label>Precio <input type="number" name="price" min="0" step="0.01"></label>
+                <label>Stock <input type="number" name="stock" min="0" step="0.01"></label>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <button type="button" id="cancel-edit-product" class="btn btn-secondary">Cancelar</button>
+                <span id="edit-product-feedback" class="feedback"></span>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="edit-client-modal">
+        <h2>Editar cliente</h2>
+        <form id="edit-client-form">
+            <input type="hidden" name="id">
+            <div class="form-grid">
+                <label>Nombre <input type="text" name="name"></label>
+                <label>Apellido <input type="text" name="lastName"></label>
+                <label>DNI <input type="text" name="dni"></label>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <button type="button" id="cancel-edit-client" class="btn btn-secondary">Cancelar</button>
+                <span id="edit-client-feedback" class="feedback"></span>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="sale-products-modal">
+        <h2>Productos de la venta</h2>
+        <ul id="sale-products-list"></ul>
+        <div class="form-actions">
+            <button type="button" id="close-sale-products" class="btn btn-secondary">Cerrar</button>
+        </div>
+    </dialog>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.querySelector("#api-url-label").textContent = API_BASE_URL;
+    </script>
+</body>
+</html>
