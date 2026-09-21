@@ -7,4 +7,4 @@
 const API_BASE_URL =
   (location.hostname === "localhost" || location.hostname === "127.0.0.1")
     ? "http://localhost:8080"
-    : "https://api-bazar-ejercicio-curso-todocode.onrender.com"; // TODO: reemplazar por la URL real una vez deployado
+    : "https://api-bazar-ejercicio-curso-todocode.onrender.com";
