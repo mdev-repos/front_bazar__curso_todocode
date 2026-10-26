@@ -55,8 +55,8 @@ function renderProducts(list) {
             <td>${money(product.price)}</td>
             <td>${product.stock}${lowStock ? ' <span class="badge badge-warning">bajo stock</span>' : ""}</td>
             <td class="actions">
-                <button class="btn btn-small btn-edit" data-id="${product.productCode}">Editar</button>
-                <button class="btn btn-small btn-danger" data-id="${product.productCode}">Eliminar</button>
+                <button class="btn btn-small btn-edit needs-backend" data-id="${product.productCode}">Editar</button>
+                <button class="btn btn-small btn-danger needs-backend" data-id="${product.productCode}">Eliminar</button>
             </td>
         `;
         productsTableBody.appendChild(row);
@@ -68,6 +68,7 @@ function renderProducts(list) {
     productsTableBody.querySelectorAll(".btn-danger").forEach(btn =>
         btn.addEventListener("click", () => handleDeleteProduct(Number(btn.dataset.id)))
     );
+    refreshBackendGuard();
 }
 
 async function loadProducts() {
@@ -183,8 +184,8 @@ function renderClients(list) {
             <td>${escapeHtml(client.lastName)}</td>
             <td>${escapeHtml(client.dni)}</td>
             <td class="actions">
-                <button class="btn btn-small btn-edit" data-id="${client.clientId}">Editar</button>
-                <button class="btn btn-small btn-danger" data-id="${client.clientId}">Eliminar</button>
+                <button class="btn btn-small btn-edit needs-backend" data-id="${client.clientId}">Editar</button>
+                <button class="btn btn-small btn-danger needs-backend" data-id="${client.clientId}">Eliminar</button>
             </td>
         `;
         clientsTableBody.appendChild(row);
@@ -196,6 +197,7 @@ function renderClients(list) {
     clientsTableBody.querySelectorAll(".btn-danger").forEach(btn =>
         btn.addEventListener("click", () => handleDeleteClient(Number(btn.dataset.id)))
     );
+    refreshBackendGuard();
 }
 
 async function loadClients() {
@@ -312,7 +314,7 @@ function renderSales(list) {
             <td>${itemCount}</td>
             <td>${sale.clientId}</td>
             <td class="actions">
-                <button class="btn btn-small btn-secondary" data-id="${sale.saleId}">Ver productos</button>
+                <button class="btn btn-small btn-secondary needs-backend" data-id="${sale.saleId}">Ver productos</button>
             </td>
         `;
         salesTableBody.appendChild(row);
@@ -321,6 +323,7 @@ function renderSales(list) {
     salesTableBody.querySelectorAll(".btn-secondary").forEach(btn =>
         btn.addEventListener("click", () => openSaleProductsModal(Number(btn.dataset.id)))
     );
+    refreshBackendGuard();
 }
 
 async function loadSales() {
@@ -443,7 +446,7 @@ async function openSaleProductsModal(saleId) {
     try {
         const saleProducts = await fetchSaleProducts(saleId);
         saleProductsList.innerHTML = saleProducts.length
-            ? saleProducts.map(p => `<li>${escapeHtml(p.name)} — ${escapeHtml(p.brand)} (${money(p.price)})</li>`).join("")
+            ? saleProducts.map(p => `<li>${escapeHtml(p.name)} - ${escapeHtml(p.brand)} (${money(p.price)})</li>`).join("")
             : "<li>Esta venta no tiene productos.</li>";
     } catch (err) {
         saleProductsList.innerHTML = `<li>${escapeHtml(err.message)}</li>`;
@@ -480,7 +483,7 @@ document.querySelector("#query-highest-sale").addEventListener("click", async ()
             return;
         }
         output.innerHTML = `
-            Venta #${highest.saleId} — ${money(highest.total)}<br>
+            Venta #${highest.saleId} - ${money(highest.total)}<br>
             Cantidad de productos: ${highest.productQuantity}<br>
             Cliente: ${escapeHtml(highest.clientName)} ${escapeHtml(highest.clientLastName)}
         `;
@@ -490,10 +493,25 @@ document.querySelector("#query-highest-sale").addEventListener("click", async ()
 });
 
 // ---------- Arranque ----------
-// Todas las listas se cargan solas al abrir la página (sin necesidad
-// de hacer un POST primero).
+// Las listas se cargan solas apenas el servidor responde (sin hacer un
+// alta primero). Mientras tanto se muestra que se está conectando.
+
+function showWaitingRows() {
+    const message = API_IS_LOCAL
+        ? "Esperando a la API local..."
+        : "Conectando al servidor... la primera vez puede tardar hasta un minuto.";
+    productsTableBody.innerHTML = `<tr><td colspan="6">${message}</td></tr>`;
+    clientsTableBody.innerHTML = `<tr><td colspan="5">${message}</td></tr>`;
+    salesTableBody.innerHTML = `<tr><td colspan="6">${message}</td></tr>`;
+    productsEmptyState.hidden = true;
+    clientsEmptyState.hidden = true;
+    salesEmptyState.hidden = true;
+}
+
+function loadAll() {
+    return Promise.all([loadProducts(), loadClients(), loadSales()]);
+}
 
 addSaleItemLine();
-loadProducts();
-loadClients();
-loadSales();
+showWaitingRows();
+startBackendMonitor({ onReady: loadAll, onLost: showWaitingRows });

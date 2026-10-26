@@ -9,8 +9,19 @@
 <body>
 
     <header>
-        <h1>🧺 Bazar TodoCode</h1>
-        <p>Front de práctica — consume la API en <code id="api-url-label"></code></p>
+        <div class="header-top">
+            <h1>🧺 Bazar TodoCode</h1>
+            <div id="api-status" class="api-status" data-state="checking" role="status" aria-live="polite">
+                <span class="semaphore" aria-hidden="true">
+                    <span class="light light-red" data-light="red"></span>
+                    <span class="light light-yellow on" data-light="yellow"></span>
+                    <span class="light light-green" data-light="green"></span>
+                </span>
+                <span id="api-status-text">Conectando al servidor...</span>
+                <button type="button" id="retry-status" class="status-retry" hidden>Reintentar</button>
+            </div>
+        </div>
+        <p>Gestión de productos, clientes y ventas | API: <code id="api-url-label"></code></p>
     </header>
 
     <main>
@@ -33,7 +44,7 @@
                         <label>Stock <input type="number" name="stock" min="0" step="0.01" required></label>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Crear producto</button>
+                        <button type="submit" class="btn btn-primary needs-backend">Crear producto</button>
                         <span id="create-product-feedback" class="feedback"></span>
                     </div>
                 </form>
@@ -42,7 +53,7 @@
             <section>
                 <h2>Inventario</h2>
                 <label class="toggle-row">
-                    <input type="checkbox" id="low-stock-toggle">
+                    <input type="checkbox" id="low-stock-toggle" class="needs-backend">
                     Mostrar solo productos con bajo stock
                 </label>
                 <div class="table-wrapper">
@@ -70,7 +81,7 @@
                         <label>DNI <input type="text" name="dni" required></label>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Crear cliente</button>
+                        <button type="submit" class="btn btn-primary needs-backend">Crear cliente</button>
                         <span id="create-client-feedback" class="feedback"></span>
                     </div>
                 </form>
@@ -104,7 +115,7 @@
                     <button type="button" id="add-sale-item" class="btn btn-secondary btn-small">+ Agregar producto</button>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Registrar venta</button>
+                        <button type="submit" class="btn btn-primary needs-backend">Registrar venta</button>
                         <span id="create-sale-feedback" class="feedback"></span>
                     </div>
                 </form>
@@ -133,13 +144,13 @@
                     <label>Monto total vendido en una fecha
                         <input type="date" id="report-date">
                     </label>
-                    <button type="button" id="query-amount-by-date" class="btn btn-primary btn-small">Consultar</button>
+                    <button type="button" id="query-amount-by-date" class="btn btn-primary btn-small needs-backend">Consultar</button>
                     <p id="amount-by-date-output" class="report-output"></p>
                 </div>
 
                 <div class="report-block">
                     <p>Venta con el monto más alto registrada</p>
-                    <button type="button" id="query-highest-sale" class="btn btn-primary btn-small">Consultar</button>
+                    <button type="button" id="query-highest-sale" class="btn btn-primary btn-small needs-backend">Consultar</button>
                     <p id="highest-sale-output" class="report-output"></p>
                 </div>
             </section>
@@ -147,7 +158,7 @@
     </main>
 
     <footer>
-        Proyecto de práctica — Roadmap Java TodoCode
+        Ejercicio integrador | TodoCode Academy
     </footer>
 
     <!-- ==================== MODALES ==================== -->
@@ -163,7 +174,7 @@
                 <label>Stock <input type="number" name="stock" min="0" step="0.01"></label>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <button type="submit" class="btn btn-primary needs-backend">Guardar cambios</button>
                 <button type="button" id="cancel-edit-product" class="btn btn-secondary">Cancelar</button>
                 <span id="edit-product-feedback" class="feedback"></span>
             </div>
@@ -180,7 +191,7 @@
                 <label>DNI <input type="text" name="dni"></label>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <button type="submit" class="btn btn-primary needs-backend">Guardar cambios</button>
                 <button type="button" id="cancel-edit-client" class="btn btn-secondary">Cancelar</button>
                 <span id="edit-client-feedback" class="feedback"></span>
             </div>
@@ -197,6 +208,7 @@
 
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/status.js"></script>
     <script src="js/app.js"></script>
     <script>
         document.querySelector("#api-url-label").textContent = API_BASE_URL;

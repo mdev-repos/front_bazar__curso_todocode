@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------
-// Capa de acceso a la API — el único lugar del front que sabe que
+// Capa de acceso a la API | el único lugar del front que sabe que
 // existe un backend REST. app.js nunca llama a fetch() directamente.
 // ------------------------------------------------------------------
 
